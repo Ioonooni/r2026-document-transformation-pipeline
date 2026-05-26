@@ -69,3 +69,16 @@ Demonstrate practical AI workflow engineering using no-code orchestration and op
 - Document Processing
 - Data Sanitization
 - Automation Systems
+## System Architecture
+
+PDF Intake
+→ Context Extraction
+→ Identity Abstraction
+→ LLM Inference
+→ Structured Behavioral Summary
+Large behavioural simulation documents
+often contain excessive identity references
+and noisy long-context structures.
+
+This workflow was designed to preprocess
+and normalize these documents before LLM inference.
