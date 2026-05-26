@@ -1,0 +1,151 @@
+{
+  "name": "R-2026 Document Transformation Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "R-2026 PDF Upload",
+        "formDescription": "Upload a behavioural simulation PDF for automated transformation.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload PDF",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        208,
+        64
+      ],
+      "id": "280e1347-a675-47fb-a49a-64d3153845d8",
+      "name": "PDF Upload Trigger",
+      "webhookId": "436a46e3-6eb0-4f34-9a33-ddd464c9815c"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Upload_PDF",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "91c5edde-2efb-4c1a-8054-da267fd65ff6",
+      "name": "PDF Text Extraction"
+    },
+    {
+      "parameters": {
+        "jsCode": "const pdfText = $json.text || $json.content || \"\";\n\nconst transformed = pdfText\n  .replace(/Ricky/g, \"R-2026\")\n  .replace(/RICKY/g, \"R-2026\")\n  .replace(/Shen Quanrui/g, \"R-2026\")\n  .replace(/SHEN QUANRUI/g, \"R-2026\")\n  .replace(/沈泉锐/g, \"R-2026\");\n\nreturn [\n  {\n    json: {\n      project_name: \"R-2026 Behavioural Simulation Model\",\n      transformed_text: transformed\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        368
+      ],
+      "id": "55ea9884-6250-4107-927b-5625e1344861",
+      "name": "Identity Sanitization"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarize and clean this behavioural analysis document.\n\nDocument:\n{{$json.transformed_text}}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        400,
+        368
+      ],
+      "id": "1479f5e3-b4e4-4d92-98a7-cf186afd85ec",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        336,
+        480
+      ],
+      "id": "dd7c31b9-84db-4fec-bba7-a29e3980f9af",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "XXvVntgtSOIHKoYY",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "PDF Upload Trigger": {
+      "main": [
+        [
+          {
+            "node": "PDF Text Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF Text Extraction": {
+      "main": [
+        [
+          {
+            "node": "Identity Sanitization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identity Sanitization": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1c12a5d4-3dce-4126-9509-d7df8ed9cf04",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "51eeefaee2a3bd5eb53ff0ab4e6d2a74ae50e4f76845dfaca1af2d5b09aa1aa8"
+  },
+  "id": "Q7DLstSim4UERMi0",
+  "tags": []
+}
